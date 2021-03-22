@@ -1,23 +1,35 @@
 <?php
-$view = "CHỌN 1: Để nhập danh sách sinh viên." . "\n"."CHỌN 2: Để hiển thị danh sách sinh viên." . "\n"
-."CHỌN 3: Để tìm kiếm sinh viên theo tên." . "\n"."CHỌN 4 : Để sửa" . "\n"."CHỌN 5: Thoát" . "\n";
-echo $view;
+function view()
+{
+    $view = "CHỌN 1: Để nhập danh sách sinh viên" . "\n" . "CHỌN 2: Để hiển thị danh sách sinh viên" . "\n"
+        . "CHỌN 3: Để tìm kiếm sinh viên theo tên" . "\n" . "CHỌN 4: Để sửa thông tin sinh viên" . "\n" . "CHỌN 5: Thoát" . "\n";
+    echo $view;
+}
+
 function khaibao()
 {
-    $file = file_get_contents('document.json');
+    $file = file_get_contents('document.json', 'a+');
     $data = json_decode($file, true);
     do {
         $name = (string)readline("Nhập tên cho sinh viên : ");
-    } while ($name == null || $name<1);
-    echo "\n";
+        $in = strlen($name);
+        while ($in >= 25) {
+            $name = (string)readline("Nhập tên cho sinh viên : ");
+        }
+
+    } while (preg_match($patten = '/[0-9]/', $name) || $name == null);
     do {
         $age = (int)readline("Nhâp tuổi cho sinh viên : ");
-    } while ($age <= 0 && $age == null);
-    echo "\n";
+        $in = strlen($age);
+        while ($age == null || $in >= 3) {
+            $age = (int)readline("Nhâp tuổi cho sinh viên : ");
+        }
+    } while (preg_match($patten = '/[aA-zZ]/', $age) || $age > 90);
     do {
         $class = (string)readline("Nhập lớp cho sinh viên : ");
-    } while ($class == null);
-    echo "\n";
+        $num = strlen($class);
+    } while ($num >= 10 || $class == null);
+
     $data[] = [
         "Name" => $name,
         "Age" => $age,
@@ -46,13 +58,17 @@ function danhsach()
 
 function timkiem()
 {
-    $name = (string)readline("Nhập tên cho sinh viên : ");
     $content = file_get_contents('document.json');
     $objitems = json_decode($content, true);
+    retry:
+    $name = (string)readline("Nhập tên cho sinh viên : ");
     foreach ($objitems as $key => $student) {
         if ($name == $student['Name']) {
-            echo 'Kết quả là  : ';
+            echo 'Thông tin sinh viên : ';
             print_r($student);
+        } else {
+            echo "Không tìm thấy tên : ", $name . "\n";
+            goto retry;
         }
     }
     chon();
@@ -63,18 +79,18 @@ function update()
     $jsonString = file_get_contents('document.json');
     $data = json_decode($jsonString, true);
     retry:
-    $name1=(string)readline("Nhâp tên người cần thay đổi :");
+    $name = (string)readline("Nhâp tên người cần thay đổi :");
     foreach ($data as $student) {
-        if ($name1 == $student['Name']) {
-            echo "Thông tin sinh viên  "."\n";
+        if ($name == $student['Name']) {
+            echo "Thông tin sinh viên  " . "\n";
             print_r($student);
         } else {
-            echo "*-----Không tìm thấy sinh viên có tên :" , $name1."-----*"."\n";
-                goto retry;
+            echo "Không tìm thấy sinh viên có tên :", $name . "\n";
+            goto retry;
         }
     }
     foreach ($data as $key => $entry) {
-        if ($entry['Name'] == $name1) {
+        if ($entry['Name'] == $name) {
             $data[$key]['Name'] = (string)readline("Nhâp tên mới :");
             $data[$key]['Age'] = (int)readline("Nhâp tuổi mới :");
             $data[$key]['Class'] = (string)readline("Nhâp lớp mới :");
@@ -87,7 +103,8 @@ function update()
 
 function chon()
 {
-    $chon = (int)readline('Mời bạn chọn :') . "<br />";
+    view();
+    $chon = (int)readline('Mời bạn chọn :');
     switch ($chon) {
         case 1:
             khaibao();
@@ -105,7 +122,7 @@ function chon()
             echo "Đã đóng chương trình " . "\n";
             die();
         default :
-            echo "Sai cú pháp , Mời thử lại" . "\n";
+            echo "SAI LỆNH - MỜI NHẬP LẠI" . "\n";
             chon();
     }
 }
