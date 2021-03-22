@@ -61,7 +61,7 @@ function timkiem()
     $content = file_get_contents('document.json');
     $objitems = json_decode($content, true);
     retry:
-    $name = (string)readline("Nhập tên cho sinh viên : ");
+    $name = readline("Nhập tên cho sinh viên : ");
     foreach ($objitems as $key => $student) {
         if ($name == $student['Name']) {
             echo 'Thông tin sinh viên : ';
